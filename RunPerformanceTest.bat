@@ -1,0 +1,1 @@
+dotnet run .\tests\CarouselPerformance\CarouselPerformance.csproj -f net10.0-windows10.0.19041.0

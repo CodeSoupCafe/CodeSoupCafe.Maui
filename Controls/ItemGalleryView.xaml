@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+  xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+  xmlns:viewmodels="clr-namespace:CodeSoupCafe.Maui.ViewModels"
+  xmlns:models="clr-namespace:CodeSoupCafe.Maui.Models"
+  xmlns:converters="clr-namespace:CodeSoupCafe.Maui.Converters"
+  x:Class="CodeSoupCafe.Maui.Controls.ItemGalleryView"
+  x:Name="PageRef">
+
+  <ContentView.Resources>
+    <ResourceDictionary>
+      <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    </ResourceDictionary>
+  </ContentView.Resources>
+
+  <Grid x:Name="RootContainer"
+        HorizontalOptions="FillAndExpand"
+        VerticalOptions="FillAndExpand"
+        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <!-- Header -->
+    <Grid Grid.Row="0"
+          ColumnDefinitions="*, Auto, Auto, Auto"
+          Padding="10"
+          BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2D2D2D}">
+      <Label Text="{Binding Source={x:Reference PageRef}, Path=Title}"
+             FontAttributes="Bold"
+             FontSize="18"
+             VerticalOptions="Center"/>
+
+      <Button Grid.Column="1"
+              Text="View"
+              Command="{Binding ToggleViewCommand}"
+              Margin="5,0"
+              HeightRequest="30"
+              Padding="10,0"/>
+      <Button Grid.Column="2"
+              Text="Sort"
+              Command="{Binding ShowHideSortPanelCommand}"
+              Margin="5,0"
+              HeightRequest="30"
+              Padding="10,0"/>
+      <Button Grid.Column="3"
+              Text="Search"
+              Command="{Binding ShowHideSearchPanelCommand}"
+              Margin="5,0"
+              HeightRequest="30"
+              Padding="10,0"/>
+    </Grid>
+
+    <!-- Search/Sort Panels -->
+    <StackLayout Grid.Row="1">
+      <!-- Search Panel -->
+      <StackLayout x:Name="SearchPanel"
+                   Orientation="Horizontal"
+                   IsVisible="{Binding IsSearchVisible}"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                   Padding="10">
+        <Label Text="Search" VerticalOptions="Center"/>
+        <Entry Text="{Binding SearchText}"
+               HorizontalOptions="FillAndExpand"
+               Placeholder="{Binding Source={x:Reference PageRef}, Path=SearchPlaceholder}"/>
+        <Button Text="X"
+                Command="{Binding ClearSearchPanelCommand}"
+                WidthRequest="40"
+                HeightRequest="40"/>
+      </StackLayout>
+
+      <!-- Sort Panel -->
+      <StackLayout x:Name="SortPanel"
+                   Orientation="Horizontal"
+                   IsVisible="{Binding IsSortVisible}"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                   Padding="10">
+        <Picker Title="Sort by"
+                ItemsSource="{Binding SortProperties}"
+                SelectedItem="{Binding SortPropertyString}"
+                HorizontalOptions="FillAndExpand"/>
+        <Picker Title="Direction"
+                ItemsSource="{Binding SortOrders}"
+                SelectedItem="{Binding SortOrderString}"
+                HorizontalOptions="FillAndExpand"/>
+      </StackLayout>
+    </StackLayout>
+
+    <!-- List/Grid Content -->
+    <Grid Grid.Row="2">
+      <!-- List View Mode -->
+      <CollectionView x:Name="ListViewMode"
+                      SelectionMode="None"
+                      ItemsSource="{Binding Items}"
+                      IsVisible="{Binding IsGridMode, Converter={StaticResource InverseBoolConverter}}">
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="models:ISortable">
+            <Grid Padding="10" ColumnDefinitions="*, Auto">
+              <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={x:Reference PageRef}, Path=ItemTappedCommand}"
+                                      CommandParameter="{Binding .}"/>
+              </Grid.GestureRecognizers>
+
+              <Label Text="{Binding Title}"
+                     FontSize="16"
+                     VerticalTextAlignment="Center"
+                     LineBreakMode="MiddleTruncation"/>
+              <Label Grid.Column="1"
+                     Text="{Binding DateCreated, StringFormat='{0:MM/dd/yyyy}'}"
+                     FontSize="12"
+                     TextColor="Gray"
+                     VerticalTextAlignment="Center"/>
+            </Grid>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+        <CollectionView.EmptyView>
+          <Label Text="{Binding Source={x:Reference PageRef}, Path=EmptyMessage}"
+                 HorizontalOptions="Center"
+                 VerticalOptions="Center"/>
+        </CollectionView.EmptyView>
+      </CollectionView>
+
+      <!-- Grid View Mode -->
+      <CollectionView x:Name="GridViewMode"
+                      Margin="10"
+                      SelectionMode="None"
+                      Scrolled="ItemsView_Scrolled"
+                      ItemsSource="{Binding Items}"
+                      IsVisible="{Binding IsGridMode}">
+        <CollectionView.ItemsLayout>
+          <GridItemsLayout Orientation="Vertical"
+                           Span="{Binding Source={x:Reference PageRef}, Path=GridSpanCount}"
+                           HorizontalItemSpacing="10"
+                           VerticalItemSpacing="10"/>
+        </CollectionView.ItemsLayout>
+        <CollectionView.EmptyView>
+          <Label Text="{Binding Source={x:Reference PageRef}, Path=EmptyMessage}"
+                 HorizontalOptions="Center"
+                 VerticalOptions="Center"/>
+        </CollectionView.EmptyView>
+      </CollectionView>
+
+      <!-- Loading Indicator -->
+      <ActivityIndicator IsRunning="{Binding IsLoading}"
+                         IsVisible="{Binding IsLoading}"
+                         Color="{AppThemeBinding Light=#512BD4, Dark=#9D7FEA}"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center"/>
+    </Grid>
+  </Grid>
+</ContentView>
