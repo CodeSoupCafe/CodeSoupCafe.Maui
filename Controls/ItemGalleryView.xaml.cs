@@ -5,6 +5,8 @@ using CodeSoupCafe.Maui.ViewModels;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
 
+using CodeSoupCafe.Maui.Behaviors;
+
 public partial class ItemGalleryView : ContentView
 {
     public static readonly BindableProperty ItemsSourceProperty =
@@ -28,6 +30,18 @@ public partial class ItemGalleryView : ContentView
     public static readonly BindableProperty IsGridModeProperty =
         BindableProperty.Create(nameof(IsGridMode), typeof(bool), typeof(ItemGalleryView), true, defaultBindingMode: BindingMode.TwoWay);
 
+    public static readonly BindableProperty ItemAppearingActionProperty =
+        BindableProperty.Create(nameof(ItemAppearingAction), typeof(Action<ISortable>), typeof(ItemGalleryView), null);
+
+    public static readonly BindableProperty ItemDisappearingActionProperty =
+        BindableProperty.Create(nameof(ItemDisappearingAction), typeof(Action<ISortable>), typeof(ItemGalleryView), null);
+
+    public static readonly BindableProperty RemainingItemsThresholdProperty =
+        BindableProperty.Create(nameof(RemainingItemsThreshold), typeof(int), typeof(ItemGalleryView), 5);
+
+    public static readonly BindableProperty RemainingItemsThresholdReachedCommandProperty =
+        BindableProperty.Create(nameof(RemainingItemsThresholdReachedCommand), typeof(ICommand), typeof(ItemGalleryView), null);
+
     public ItemGalleryViewModel ViewModel { get; }
 
     public ItemGalleryView()
@@ -35,7 +49,7 @@ public partial class ItemGalleryView : ContentView
         InitializeComponent();
 
         ViewModel = new ItemGalleryViewModel();
-        BindingContext = ViewModel;
+        RootContainer.BindingContext = ViewModel;
 
         // Subscribe to item selected event from ViewModel
         ViewModel.ItemSelected += OnItemSelected;
@@ -92,6 +106,30 @@ public partial class ItemGalleryView : ContentView
         set => SetValue(IsGridModeProperty, value);
     }
 
+    public Action<ISortable>? ItemAppearingAction
+    {
+        get => (Action<ISortable>?)GetValue(ItemAppearingActionProperty);
+        set => SetValue(ItemAppearingActionProperty, value);
+    }
+
+    public Action<ISortable>? ItemDisappearingAction
+    {
+        get => (Action<ISortable>?)GetValue(ItemDisappearingActionProperty);
+        set => SetValue(ItemDisappearingActionProperty, value);
+    }
+
+    public int RemainingItemsThreshold
+    {
+        get => (int)GetValue(RemainingItemsThresholdProperty);
+        set => SetValue(RemainingItemsThresholdProperty, value);
+    }
+
+    public ICommand? RemainingItemsThresholdReachedCommand
+    {
+        get => (ICommand?)GetValue(RemainingItemsThresholdReachedCommandProperty);
+        set => SetValue(RemainingItemsThresholdReachedCommandProperty, value);
+    }
+
     public ICommand ItemTappedCommand { get; }
 
     public event EventHandler<ItemSelectedEventArgs>? ItemSelected;
@@ -136,12 +174,19 @@ public partial class ItemGalleryView : ContentView
                     Content = contentView
                 };
 
+                // Add tap gesture
                 var tapGesture = new TapGestureRecognizer
                 {
                     Command = ItemTappedCommand
                 };
                 tapGesture.SetBinding(TapGestureRecognizer.CommandParameterProperty, new Binding("."));
                 wrapper.GestureRecognizers.Add(tapGesture);
+
+                // Add appearing/disappearing behavior
+                var behavior = new ItemAppearingBehavior();
+                behavior.SetBinding(ItemAppearingBehavior.AppearingActionProperty, new Binding(nameof(ItemAppearingAction), source: this));
+                behavior.SetBinding(ItemAppearingBehavior.DisappearingActionProperty, new Binding(nameof(ItemDisappearingAction), source: this));
+                wrapper.Behaviors.Add(behavior);
 
                 return wrapper;
             }
@@ -167,5 +212,21 @@ public partial class ItemGalleryView : ContentView
     private void ItemsView_Scrolled(object sender, ItemsViewScrolledEventArgs e)
     {
         ViewModel?.ItemsView_Scrolled(sender, e);
+    }
+
+    private void OnItemAppearing(object? sender, ItemVisibilityEventArgs e)
+    {
+        if (e.Item is ISortable item)
+        {
+            ItemAppearingAction?.Invoke(item);
+        }
+    }
+
+    private void OnItemDisappearing(object? sender, ItemVisibilityEventArgs e)
+    {
+        if (e.Item is ISortable item)
+        {
+            ItemDisappearingAction?.Invoke(item);
+        }
     }
 }

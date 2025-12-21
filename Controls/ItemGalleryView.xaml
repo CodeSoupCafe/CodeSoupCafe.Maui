@@ -95,6 +95,8 @@
       <CollectionView x:Name="ListViewMode"
                       SelectionMode="None"
                       ItemsSource="{Binding Items}"
+                      RemainingItemsThreshold="{Binding Source={x:Reference PageRef}, Path=RemainingItemsThreshold}"
+                      RemainingItemsThresholdReachedCommand="{Binding Source={x:Reference PageRef}, Path=RemainingItemsThresholdReachedCommand}"
                       IsVisible="{Binding IsGridMode, Converter={StaticResource InverseBoolConverter}}">
         <CollectionView.ItemTemplate>
           <DataTemplate x:DataType="models:ISortable">
@@ -129,6 +131,8 @@
                       SelectionMode="None"
                       Scrolled="ItemsView_Scrolled"
                       ItemsSource="{Binding Items}"
+                      RemainingItemsThreshold="{Binding Source={x:Reference PageRef}, Path=RemainingItemsThreshold}"
+                      RemainingItemsThresholdReachedCommand="{Binding Source={x:Reference PageRef}, Path=RemainingItemsThresholdReachedCommand}"
                       IsVisible="{Binding IsGridMode}">
         <CollectionView.ItemsLayout>
           <GridItemsLayout Orientation="Vertical"

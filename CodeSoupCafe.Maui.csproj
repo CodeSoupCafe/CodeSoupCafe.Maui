@@ -15,7 +15,7 @@
 
 		<RootNamespace>CodeSoupCafe.Maui</RootNamespace>
 		<AssemblyName>CodeSoupCafe.Maui</AssemblyName>
-		<Version>1.0.0</Version>
+		<Version>1.0.4</Version>
 		<Authors>CodeSoupCafe</Authors>
 		<Description>A reusable MAUI gallery/carousel control with sorting, searching, and customizable item templates</Description>
 		<PackageProjectUrl>https://github.com/codesoupcafe/CodeSoupCafe.Maui</PackageProjectUrl>

@@ -7,6 +7,8 @@ public abstract class ItemState : ISortable
     public abstract DateTimeOffset DateCreated { get; }
     public abstract DateTimeOffset DateUpdated { get; }
 
+    public virtual string? ThumbnailBase64 { get; set; }
+
     public override abstract bool Equals(object? other);
     public override abstract int GetHashCode();
 }
