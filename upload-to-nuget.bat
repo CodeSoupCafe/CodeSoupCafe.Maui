@@ -6,7 +6,7 @@ REM   Or set NUGET_API_KEY environment variable before running
 setlocal
 
 REM Package configuration
-set PACKAGE_PATH=..\LocalNuGetPackages\CodeSoupCafe.Maui.1.0.0.nupkg
+set PACKAGE_PATH=..\LocalNuGetPackages\CodeSoupCafe.Maui.1.0.4.nupkg
 set NUGET_SOURCE=https://api.nuget.org/v3/index.json
 
 REM Get API key from parameter or environment variable

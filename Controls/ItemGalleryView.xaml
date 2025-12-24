@@ -5,6 +5,7 @@
   xmlns:viewmodels="clr-namespace:CodeSoupCafe.Maui.ViewModels"
   xmlns:models="clr-namespace:CodeSoupCafe.Maui.Models"
   xmlns:converters="clr-namespace:CodeSoupCafe.Maui.Converters"
+  xmlns:behaviors="clr-namespace:CodeSoupCafe.Maui.Behaviors"
   x:Class="CodeSoupCafe.Maui.Controls.ItemGalleryView"
   x:Name="PageRef">
 
@@ -101,6 +102,9 @@
         <CollectionView.ItemTemplate>
           <DataTemplate x:DataType="models:ISortable">
             <Grid Padding="10" ColumnDefinitions="*, Auto">
+              <Grid.Behaviors>
+                <behaviors:ContextMenuBehavior Commands="{Binding Source={x:Reference PageRef}, Path=ItemContextCommands}"/>
+              </Grid.Behaviors>
               <Grid.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding Source={x:Reference PageRef}, Path=ItemTappedCommand}"
                                       CommandParameter="{Binding .}"/>

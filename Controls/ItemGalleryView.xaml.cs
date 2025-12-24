@@ -41,6 +41,9 @@ public partial class ItemGalleryView : ContentView
 
     public static readonly BindableProperty RemainingItemsThresholdReachedCommandProperty =
         BindableProperty.Create(nameof(RemainingItemsThresholdReachedCommand), typeof(ICommand), typeof(ItemGalleryView), null);
+    public static readonly BindableProperty ItemContextCommandsProperty =
+        BindableProperty.Create(nameof(ItemContextCommands), typeof(IEnumerable<GalleryContextCommand>), typeof(ItemGalleryView), null, propertyChanged: OnItemContextCommandsChanged);
+
 
     public ItemGalleryViewModel ViewModel { get; }
 
@@ -129,6 +132,12 @@ public partial class ItemGalleryView : ContentView
         get => (ICommand?)GetValue(RemainingItemsThresholdReachedCommandProperty);
         set => SetValue(RemainingItemsThresholdReachedCommandProperty, value);
     }
+    public IEnumerable<GalleryContextCommand>? ItemContextCommands
+    {
+        get => (IEnumerable<GalleryContextCommand>?)GetValue(ItemContextCommandsProperty);
+        set => SetValue(ItemContextCommandsProperty, value);
+    }
+
 
     public ICommand ItemTappedCommand { get; }
 
@@ -155,6 +164,15 @@ public partial class ItemGalleryView : ContentView
             }
         }
     }
+    private static void OnItemContextCommandsChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        if (bindable is ItemGalleryView view && view.GridViewMode != null && view.ItemTemplate != null)
+        {
+            // Re-create wrapped template to apply new context menu
+            view.GridViewMode.ItemTemplate = view.CreateWrappedTemplate(view.ItemTemplate);
+        }
+    }
+
 
     private DataTemplate CreateWrappedTemplate(DataTemplate innerTemplate)
     {
@@ -181,6 +199,36 @@ public partial class ItemGalleryView : ContentView
                 };
                 tapGesture.SetBinding(TapGestureRecognizer.CommandParameterProperty, new Binding("."));
                 wrapper.GestureRecognizers.Add(tapGesture);
+
+                // Add context menu if commands are provided
+                if (ItemContextCommands != null && ItemContextCommands.Any())
+                {
+                    var menuFlyout = new MenuFlyout();
+
+                    foreach (var cmd in ItemContextCommands)
+                    {
+                        var menuItem = new MenuFlyoutItem
+                        {
+                            Text = cmd.Text,
+                            Command = cmd.Command
+                        };
+
+                        if (!string.IsNullOrEmpty(cmd.IconImageSource))
+                        {
+                            menuItem.IconImageSource = ImageSource.FromFile(cmd.IconImageSource);
+                        }
+
+                        if (cmd.IsDestructive)
+                        {
+                            menuItem.StyleClass = new[] { "DestructiveAction" };
+                        }
+
+                        menuItem.SetBinding(MenuFlyoutItem.CommandParameterProperty, new Binding("."));
+                        menuFlyout.Add(menuItem);
+                    }
+
+                    FlyoutBase.SetContextFlyout(wrapper, menuFlyout);
+                }
 
                 // Add appearing/disappearing behavior
                 var behavior = new ItemAppearingBehavior();

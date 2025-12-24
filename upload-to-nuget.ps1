@@ -27,7 +27,7 @@ param(
 )
 
 # Package configuration
-$PackagePath = Join-Path $PSScriptRoot "..\LocalNuGetPackages\CodeSoupCafe.Maui.1.0.0.nupkg"
+$PackagePath = Join-Path $PSScriptRoot "..\LocalNuGetPackages\CodeSoupCafe.Maui.1.0.4.nupkg"
 $NuGetSource = "https://api.nuget.org/v3/index.json"
 
 # Get API key from parameter or environment variable
