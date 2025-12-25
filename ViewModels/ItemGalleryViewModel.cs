@@ -171,7 +171,6 @@ public class ItemGalleryViewModel : NotifyPropertyChanged, IDisposable
 
   public void SetItemsSource(IEnumerable<ISortable> items)
   {
-    System.Diagnostics.Debug.WriteLine($"[ItemGalleryViewModel] SetItemsSource called with {items?.Count() ?? 0} items");
 
     if (sourceCollection is INotifyCollectionChanged oldNotify)
     {
@@ -240,7 +239,6 @@ public class ItemGalleryViewModel : NotifyPropertyChanged, IDisposable
   private void SortItems(List<ISortable>? inputList = null)
   {
     var list = inputList ?? new List<ISortable>(Items);
-    System.Diagnostics.Debug.WriteLine($"[ItemGalleryViewModel] SortItems: inputList={(inputList != null ? inputList.Count.ToString() : "null")}, list.Count={list.Count}");
 
     Func<ISortable, object> sortKey = SortPropertyValue switch
     {
@@ -253,10 +251,8 @@ public class ItemGalleryViewModel : NotifyPropertyChanged, IDisposable
         ? list.OrderByDescending(sortKey).ToList()
         : list.OrderBy(sortKey).ToList();
 
-    System.Diagnostics.Debug.WriteLine($"[ItemGalleryViewModel] Sorted {sorted.Count} items, clearing and adding to Items");
     Items.Clear();
     Items.AddRange(sorted);
-    System.Diagnostics.Debug.WriteLine($"[ItemGalleryViewModel] Items.Count after AddRange = {Items.Count}");
 
     IsEmptyItems = Items.Count == 0;
   }
